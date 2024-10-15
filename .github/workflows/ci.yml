@@ -1,0 +1,38 @@
+name: CI/CD Pipeline for Projekti-Spektri
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Lint
+      run: npm run lint
+
+    - name: Run Type Checks
+      run: npm run type-check
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Build Project
+      run: npm run build
+
