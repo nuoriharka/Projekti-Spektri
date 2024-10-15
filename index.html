@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasvihuoneen hallintapaneeli</title>
+    <link rel="stylesheet" href="libs/bulma.min.css">
+    <link rel="stylesheet" href="libs/font-awesome.min.css">
+    <link rel="stylesheet" href="libs/chart.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .navbar-brand, .navbar-item {
+            color: #4a4a4a;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        .button.is-primary {
+            background-color: #007aff;
+            border-radius: 25px;
+            transition: background-color 0.4s, transform 0.2s;
+        }
+        .button.is-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .mt-3 {
+            margin-top: 1rem;
+        }
+        .notification.is-success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .notification.is-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .input {
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: box-shadow 0.3s;
+        }
+        .input:focus {
+            box-shadow: 0 0 5px rgba(0, 209, 178, 0.5);
+        }
+        .custom-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        .dark-mode .input {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+        .dark-mode .notification {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        .dark-mode .card {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+        .dark-mode .navbar, .dark-mode .footer {
+            background-color: #1e1e1e;
+        }
+        .dark-mode .button.is-primary {
+            background-color: #00bfa5;
+        }
+        .dark-mode .notification.is-success {
+            background-color: #2e7d32;
+            color: #ffffff;
+        }
+        .dark-mode .notification.is-error {
+            background-color: #d32f2f;
+            color: #ffffff;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        .spektri-logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 3rem;
+            color: #000;
+            position: relative;
+        }
+        .spektri-logo::after {
+            content: "™";
+            font-size: 1rem;
+            vertical-align: top;
+            position: absolute;
+            top: 0;
+            right: -1.5rem;
+        }
+    </style>
+</head>
+<body onload="initializeOfflineSupport(); loadThemePreference(); initializeAutoMode(); autoMonitorConditions(); initializeGuidance()">
+    <nav class="navbar is-spaced is-fixed-top" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+            <span class="spektri-logo">SPEKTRI</span>
+            <a class="navbar-item" href="#">
+                <i class="fas fa-seedling custom-icon"></i>
+                <strong>Spektri Kasvihuoneen Hallinta</strong>
+            </a>
+            <div id="navbarMenu" class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item" href="#">Koti</a>
+                    <a class="navbar-item" href="#">Automaattinen Hallinta</a>
+                    <a class="navbar-item" href="#" onclick="showInteractiveGuide()">Käyttöohjeet</a>
+                    <a class="navbar-item" href="#" onclick="showReports()">Raportit</a>
+                    <a class="navbar-item" href="#" onclick="showSettings()">Asetukset</a>
+                </div>
+            </div>
+            <div class="navbar-item">
+                <div class="button-group">
+                    <button class="button" onclick="toggleDarkMode()">Vaihda teema</button>
+                    <button class="button ml-2" onclick="showInteractiveGuide()">Näytä käyttöohjeet</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title has-text-centered spektri-logo">SPEKTRI Kasvihuoneen Hallintapaneeli</h1>
+            <p class="subtitle has-text-centered">Käyttäjäystävällinen ratkaisu kasvihuoneesi olosuhteiden hallintaan</p>
+            <div id="notification" class="notification is-hidden" role="alert" aria-live="assertive"></div>
+            <div class="columns is-multiline">
+                <div class="column is-one-third">
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title tooltip">
+                                <i class="fas fa-thermometer-half custom-icon"></i>Lämpötila (suositus: 20-25 °C)
+                                <span class="tooltiptext">Aseta lämpötilakynnys kasvihuoneessa (suositus: 20-25 °C)</span>
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content">
+                                <input type="number" class="input" id="temp_threshold" placeholder="Lämpötilakynnys (°C, suositus: 20-25)" min="10" max="50" oninput="validateTemperatureInput(); autoUpdateTemperatureThreshold()" aria-label="Lämpötilan asettaminen (suositus: 20-25 °C)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Continue with other columns and components -->
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+</html>
