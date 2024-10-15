@@ -1,0 +1,61 @@
+name: CI/CD Pipeline for Projekti-Spektri
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+
+    - name: Build Docker container
+      run: |
+        docker-compose down
+        docker-compose build --no-cache
+        docker-compose up -d
+
+    - name: Run tests
+      run: npm test
+
+    - name: Analyze logs
+      run: |
+        if [ -f /root/.npm/_logs/*.log ]; then
+          cat /root/.npm/_logs/*.log
+        fi
+
+  notify:
+    needs: build
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+    - name: Notify on failure
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,author,commit
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
