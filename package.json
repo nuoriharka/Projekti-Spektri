@@ -83,7 +83,7 @@
     "winston": "^3.6.0"
   },
   "devDependencies": {
-    "@storybook/react": "^6.5.0",
+    "@storybook/react": "^8.3.5",
     "@typescript-eslint/eslint-plugin": "^5.36.0",
     "@typescript-eslint/parser": "^5.36.0",
     "babel-loader": "^8.2.5",
