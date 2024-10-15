@@ -90,7 +90,7 @@
     "commitlint": "^17.0.3",
     "concurrently": "^7.3.0",
     "cross-env": "^7.0.3",
-    "cypress": "^10.11.0",
+    "cypress": "^13.15.0",
     "cypress-axe": "^1.5.0",
     "eslint": "^8.23.0",
     "husky": "^8.0.1",
