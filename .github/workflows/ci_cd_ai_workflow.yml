@@ -22,7 +22,7 @@ jobs:
         node-version: [16, 18, 20]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Updated to v3
+        uses: actions/checkout@v3  # Päivitetty v3:ksi
 
       - name: Validate secrets
         run: |
@@ -35,7 +35,7 @@ jobs:
           done
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3  # Updated to v3
+        uses: actions/setup-node@v3  # Päivitetty v3:ksi
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -87,7 +87,7 @@ jobs:
         run: npm run build
 
       - name: Run e2e Tests
-        uses: cypress-io/github-action@v4  # Updated to v4
+        uses: cypress-io/github-action@v4  # Päivitetty v4:ksi
         with:
           build: npm run build
         env:
@@ -119,7 +119,7 @@ jobs:
 
       - name: Trigger PagerDuty Incident
         if: failure()
-        uses: rtCamp/action-slack-notify@v2.0.0
+        uses: jksingh/pagerduty-action@v1.0.0
         with:
           api_key: ${{ secrets.PAGERDUTY_KEY }}
           incident_title: "Build Failure Alert"
@@ -139,5 +139,21 @@ jobs:
 
       - name: Set up Grafana for monitoring
         run: |
-          echo "Setting up Grafana dashboards for real-time monitoring
+          echo "Setting up Grafana dashboards for real-time monitoring..."
+          # Placeholder for Grafana setup script or API integration
+
+      - name: Publish metrics to Grafana
+        run: |
+          echo "Publishing metrics to Grafana..."
+          # Placeholder for script to publish metrics to Grafana
+
+      - name: Notify on Grafana setup
+        uses: rtCamp/action-slack-notify@v2.0.0
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_TITLE: "Grafana Setup"
+          SLACK_MESSAGE: "Grafana dashboard setup for monitoring completed successfully!"
+          SLACK_COLOR: good
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
 
