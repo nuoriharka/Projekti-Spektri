@@ -1,4 +1,4 @@
-name: Ultimate Advanced CI/CD Workflow with Full AI Integration
+kname: Ultimate Advanced CI/CD Workflow
 
 on:
   push:
@@ -11,8 +11,8 @@ on:
       - opened
       - synchronize
   schedule:
-    - cron: '0 0 * * 0'  # Weekly schedule to run the workflow
-    - cron: '0 0 1 * *'  # Monthly schedule for dependency updates
+    - cron: '0 0 * * 0'  # Weekly schedule
+    - cron: '0 0 1 * *'  # Monthly updates
 
 jobs:
   build:
@@ -42,9 +42,7 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            node_modules
+          path: ~/.npm, node_modules
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}-
@@ -67,7 +65,7 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
       - name: Run security scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@v3
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -94,7 +92,7 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20.0.0
+        uses: amondnet/vercel-action@v21.0.0
         with:
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
           vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
