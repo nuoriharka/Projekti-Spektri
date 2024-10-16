@@ -130,10 +130,6 @@ jobs:
           to: ${{ secrets.EMAIL_RECIPIENT }}
           from: GitHub Actions <actions@example.com>
 
-  grafana_dashboard:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
       - name: Set up Grafana for monitoring
         run: |
           echo "Setting up Grafana dashboards for real-time monitoring..."
@@ -153,23 +149,4 @@ jobs:
           SLACK_COLOR: good
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
-  publish_metrics:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Collect and publish metrics
-        run: |
-          echo "Collecting application metrics..."
-          # Placeholder for script to collect metrics
-          echo "Publishing metrics to Grafana..."
-          # Placeholder for script to publish collected metrics to Grafana
-
-      - name: Notify on metrics publication
-        uses: rtCamp/action-slack-notify@v2.0.0
-        env:
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
-          SLACK_TITLE: "Metrics Publication"
-          SLACK_MESSAGE: "Metrics collected and published to Grafana successfully!"
-          SLACK_COLOR: good
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
