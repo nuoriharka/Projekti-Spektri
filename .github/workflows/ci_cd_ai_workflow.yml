@@ -1,4 +1,4 @@
-name: Ultimate Advanced CI/CD Workflow
+name: Ultimate Advanced CI/CD Workflow with Full AI Integration
 
 on:
   push:
@@ -11,8 +11,8 @@ on:
       - opened
       - synchronize
   schedule:
-    - cron: '0 0 * * 0'  # Weekly schedule
-    - cron: '0 0 1 * *'  # Monthly updates
+    - cron: '0 0 * * 0'  # Weekly schedule to run the workflow
+    - cron: '0 0 1 * *'  # Monthly schedule for dependency updates
 
 jobs:
   build:
@@ -140,7 +140,7 @@ jobs:
           echo "Publishing metrics to Grafana..."
           # Placeholder for script to publish metrics to Grafana
 
-      - name: Notify on successful setup
+      - name: Notify on Grafana setup
         uses: rtCamp/action-slack-notify@v2.0.0
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
