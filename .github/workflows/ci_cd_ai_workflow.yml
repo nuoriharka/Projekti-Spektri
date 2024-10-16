@@ -11,8 +11,8 @@ on:
       - opened
       - synchronize
   schedule:
-    - cron: '0 0 * * 0'  # Weekly schedule to run the workflow
-    - cron: '0 0 1 * *'  # Monthly schedule for dependency updates
+    - cron: '0 0 * * 0'  # Weekly schedule
+    - cron: '0 0 1 * *'  # Monthly updates
 
 jobs:
   build:
@@ -67,7 +67,7 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
       - name: Run security scan
-        uses: snyk/actions/node@v1
+        uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -148,30 +148,4 @@ jobs:
           SLACK_MESSAGE: "Grafana dashboard setup for monitoring completed successfully!"
           SLACK_COLOR: good
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
-### 2. **Lisää ChatGPT API**
-Lisää seuraava osa backend-koodiin (esim. tiedostoon, jossa API-puhelu tehdään):
-
-```js
-const axios = require('axios');
-
-async function callChatGPTApi(prompt) {
-  try {
-    const response = await axios.post('https://api.openai.com/v1/completions', {
-      model: 'text-davinci-004',
-      prompt: prompt,
-      max_tokens: 150,
-      temperature: 0.7,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      }
-    });
-    console.log('Response:', response.data.choices[0].text.trim());
-  } catch (error) {
-    console.error('Error calling OpenAI API:', error.message);
-  }
-}
-
 
