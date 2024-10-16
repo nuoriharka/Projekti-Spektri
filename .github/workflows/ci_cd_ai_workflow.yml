@@ -28,22 +28,11 @@ jobs:
         run: |
           REQUIRED_SECRETS=("CODACY_PROJECT_TOKEN" "EMAIL_FALLBACK_URL" "OPENAI_API_KEY" "PAGERDUTY_KEY" "SLACK_WEBHOOK" "VERCEL_TOKEN" "GITHUB_TOKEN" "EMAIL_USERNAME" "EMAIL_PASSWORD" "EMAIL_RECIPIENT")
           for secret in "${REQUIRED_SECRETS[@]}"; do
-            if [ -z "${!secret}" ]; then
+            if [ -z "${{ secrets[${secret}] }}" ]; then
               echo "::error::$secret is not set"
               exit 1
             fi
           done
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          EMAIL_FALLBACK_URL: ${{ secrets.EMAIL_FALLBACK_URL }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PAGERDUTY_KEY: ${{ secrets.PAGERDUTY_KEY }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -141,10 +130,6 @@ jobs:
           to: ${{ secrets.EMAIL_RECIPIENT }}
           from: GitHub Actions <actions@example.com>
 
-  grafana_dashboard:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
       - name: Set up Grafana for monitoring
         run: |
           echo "Setting up Grafana dashboards for real-time monitoring..."
@@ -155,32 +140,21 @@ jobs:
           echo "Publishing metrics to Grafana..."
           # Placeholder for script to publish metrics to Grafana
 
-      - name: Notify on successful setup
+      - name: Upload Artifact (Reports, Logs)
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs-and-reports
+          path: |
+            coverage/
+            logs/
+            docs/
+
+      - name: Notify on Grafana setup
         uses: rtCamp/action-slack-notify@v2.0.0
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TITLE: "Grafana Setup"
           SLACK_MESSAGE: "Grafana dashboard setup for monitoring completed successfully!"
-          SLACK_COLOR: good
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
-  publish_metrics:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Collect and publish metrics
-        run: |
-          echo "Collecting application metrics..."
-          # Placeholder for script to collect metrics
-          echo "Publishing metrics to Grafana..."
-          # Placeholder for script to publish collected metrics to Grafana
-
-      - name: Notify on metrics publication
-        uses: rtCamp/action-slack-notify@v2.0.0
-        env:
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
-          SLACK_TITLE: "Metrics Publication"
-          SLACK_MESSAGE: "Metrics collected and published to Grafana successfully!"
           SLACK_COLOR: good
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
