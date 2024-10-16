@@ -1,4 +1,4 @@
-kname: Ultimate Advanced CI/CD Workflow
+name: Ultimate Advanced CI/CD Workflow
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
         run: |
           REQUIRED_SECRETS=("CODACY_PROJECT_TOKEN" "EMAIL_FALLBACK_URL" "OPENAI_API_KEY" "PAGERDUTY_KEY" "SLACK_WEBHOOK" "VERCEL_TOKEN" "GITHUB_TOKEN" "EMAIL_USERNAME" "EMAIL_PASSWORD" "EMAIL_RECIPIENT")
           for secret in "${REQUIRED_SECRETS[@]}"; do
-            if [ -z "${{ secrets[${secret}] }}" ]; then
+            if [ -z "${{ secrets[$secret] }}" ]; then
               echo "::error::$secret is not set"
               exit 1
             fi
@@ -42,7 +42,9 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.npm, node_modules
+          path: |
+            ~/.npm
+            node_modules
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}-
@@ -65,7 +67,7 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
       - name: Run security scan
-        uses: snyk/actions/node@v3
+        uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -146,5 +148,4 @@ jobs:
           SLACK_MESSAGE: "Grafana dashboard setup for monitoring completed successfully!"
           SLACK_COLOR: good
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
 
