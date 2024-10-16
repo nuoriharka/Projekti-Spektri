@@ -22,7 +22,7 @@ jobs:
         node-version: [16, 18, 20]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Updated to v3
 
       - name: Validate secrets
         run: |
@@ -35,7 +35,7 @@ jobs:
           done
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3  # Updated to v3
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -67,7 +67,7 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
       - name: Run security scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@v3
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -87,7 +87,7 @@ jobs:
         run: npm run build
 
       - name: Run e2e Tests
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v4  # Updated to v4
         with:
           build: npm run build
         env:
@@ -155,3 +155,5 @@ jobs:
           SLACK_MESSAGE: "Grafana dashboard setup for monitoring completed successfully!"
           SLACK_COLOR: good
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+
