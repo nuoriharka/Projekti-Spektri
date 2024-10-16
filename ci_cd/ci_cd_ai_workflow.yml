@@ -1,4 +1,4 @@
-name: Ultimate Advanced CI/CD Workflow with Enhanced AI Integration
+name: Ultimate Advanced CI/CD Workflow
 
 on:
   push:
@@ -11,8 +11,8 @@ on:
       - opened
       - synchronize
   schedule:
-    - cron: '0 0 * * 0'  # Weekly schedule
-    - cron: '0 0 1 * *'  # Monthly updates
+    - cron: '0 0 * * 0'  # Weekly schedule to run the workflow
+    - cron: '0 0 1 * *'  # Monthly schedule for dependency updates
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
         run: |
           REQUIRED_SECRETS=("CODACY_PROJECT_TOKEN" "EMAIL_FALLBACK_URL" "OPENAI_API_KEY" "PAGERDUTY_KEY" "SLACK_WEBHOOK" "VERCEL_TOKEN" "GITHUB_TOKEN" "EMAIL_USERNAME" "EMAIL_PASSWORD" "EMAIL_RECIPIENT")
           for secret in "${REQUIRED_SECRETS[@]}"; do
-            if [ -z "${{ secrets[${secret}] }}" ]; then
+            if [ -z "${{ secrets[$secret] }}" ]; then
               echo "::error::$secret is not set"
               exit 1
             fi
@@ -62,7 +62,7 @@ jobs:
         run: npm run docs:generate
 
       - name: Run Codacy Analysis
-        uses: codacy/codacy-analysis-cli-action@v3
+        uses: codacy/codacy-analysis-cli-action@latest
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
@@ -80,10 +80,6 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Analyze Test Results with ChatGPT
-        run: |
-          python analyze_results.py  # Käytä python-skriptiä, joka kutsuu OpenAI API:a analysoimaan tuloksia
-
       - name: Migrate database
         run: npm run migrate
 
@@ -91,18 +87,25 @@ jobs:
         run: npm run build
 
       - name: Run e2e Tests
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v4
         with:
           build: npm run build
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20.0.0
+        uses: amondnet/vercel-action@v21.0.0
         with:
           vercel_token: ${{ secrets.VERCEL_TOKEN }}
           vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
           vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: ChatGPT Integration
+        run: |
+          echo "Running ChatGPT integration script..."
+          python3 scripts/chatgpt_integration.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Notify on Slack
         uses: rtCamp/action-slack-notify@v2.0.0
@@ -145,6 +148,10 @@ jobs:
           # Placeholder for script to publish metrics to Grafana
 
       - name: Notify on Grafana setup
-        uses: rtCamp/action-slack-notify@v2
-
-
+        uses: rtCamp/action-slack-notify@v2.0.0
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_TITLE: "Grafana Setup"
+          SLACK_MESSAGE: "Grafana dashboard setup for monitoring completed successfully!"
+          SLACK_COLOR: good
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
