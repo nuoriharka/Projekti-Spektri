@@ -1,203 +1,147 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasvihuoneen hallintapaneeli</title>
-    <link rel="stylesheet" href="libs/bulma.min.css">
-    <link rel="stylesheet" href="libs/font-awesome.min.css">
-    <link rel="stylesheet" href="libs/chart.min.css">
-    <link rel="manifest" href="manifest.json">
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .navbar-brand, .navbar-item {
-            color: #4a4a4a;
-        }
-        .card {
-            border-radius: 20px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-        }
-        .button.is-primary {
-            background-color: #007aff;
-            border-radius: 25px;
-            transition: background-color 0.4s, transform 0.2s;
-        }
-        .button.is-primary:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-        .mt-3 {
-            margin-top: 1rem;
-        }
-        .notification.is-success {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-        .notification.is-error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .input {
-            border-radius: 10px;
-            padding: 0.75rem;
-            transition: box-shadow 0.3s;
-        }
-        .input:focus {
-            box-shadow: 0 0 5px rgba(0, 209, 178, 0.5);
-        }
-        .custom-icon {
-            font-size: 1.5rem;
-            margin-right: 10px;
-        }
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-        }
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 220px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -110px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        .dark-mode {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        .dark-mode .input {
-            background-color: #2c2c2c;
-            color: #e0e0e0;
-            border-color: #444;
-        }
-        .dark-mode .notification {
-            background-color: #333;
-            color: #e0e0e0;
-        }
-        .dark-mode .card {
-            background-color: #1e1e1e;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-        }
-        .dark-mode .navbar, .dark-mode .footer {
-            background-color: #1e1e1e;
-        }
-        .dark-mode .button.is-primary {
-            background-color: #00bfa5;
-        }
-        .dark-mode .notification.is-success {
-            background-color: #2e7d32;
-            color: #ffffff;
-        }
-        .dark-mode .notification.is-error {
-            background-color: #d32f2f;
-            color: #ffffff;
-        }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-    <style>
-        .spektri-logo {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 3rem;
-            color: #000;
-            position: relative;
-        }
-        .spektri-logo::after {
-            content: "™";
-            font-size: 1rem;
-            vertical-align: top;
-            position: absolute;
-            top: 0;
-            right: -1.5rem;
-        }
-    </style>
-</head>
-<body onload="initializeOfflineSupport(); loadThemePreference(); initializeAutoMode(); autoMonitorConditions(); initializeGuidance()">
-    <nav class="navbar is-spaced is-fixed-top" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-            <span class="spektri-logo">SPEKTRI</span>
-            <a class="navbar-item" href="#">
-                <i class="fas fa-seedling custom-icon"></i>
-                <strong>Spektri Kasvihuoneen Hallinta</strong>
-            </a>
-            <div id="navbarMenu" class="navbar-menu">
-                <div class="navbar-start">
-                    <a class="navbar-item" href="#">Koti</a>
-                    <a class="navbar-item" href="#">Automaattinen Hallinta</a>
-                    <a class="navbar-item" href="#" onclick="showInteractiveGuide()">Käyttöohjeet</a>
-                    <a class="navbar-item" href="#" onclick="showReports()">Raportit</a>
-                    <a class="navbar-item" href="#" onclick="showSettings()">Asetukset</a>
-                </div>
-            </div>
-            <div class="navbar-item">
-                <div class="button-group">
-                    <button class="button" onclick="toggleDarkMode()">Vaihda teema</button>
-                    <button class="button ml-2" onclick="showInteractiveGuide()">Näytä käyttöohjeet</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section class="section">
-        <div class="container">
-            <h1 class="title has-text-centered spektri-logo">SPEKTRI Kasvihuoneen Hallintapaneeli</h1>
-            <p class="subtitle has-text-centered">Käyttäjäystävällinen ratkaisu kasvihuoneesi olosuhteiden hallintaan</p>
-            <div id="notification" class="notification is-hidden" role="alert" aria-live="assertive"></div>
-            <div class="columns is-multiline">
-                <div class="column is-one-third">
-                    <div class="card">
-                        <header class="card-header">
-                            <p class="card-header-title tooltip">
-                                <i class="fas fa-thermometer-half custom-icon"></i>Lämpötila (suositus: 20-25 °C)
-                                <span class="tooltiptext">Aseta lämpötilakynnys kasvihuoneessa (suositus: 20-25 °C)</span>
-                            </p>
-                        </header>
-                        <div class="card-content">
-                            <div class="content">
-                                <input type="number" class="input" id="temp_threshold" placeholder="Lämpötilakynnys (°C, suositus: 20-25)" min="10" max="50" oninput="validateTemperatureInput(); autoUpdateTemperatureThreshold()" aria-label="Lämpötilan asettaminen (suositus: 20-25 °C)">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Continue with other columns and components -->
-            </div>
-        </div>
-    </section>
-</body>
-</html>
+{
+  "name": "projekti-spektri",
+  "version": "1.0.0",
+  "description": "A comprehensive system for managing indoor and greenhouse plant growth, providing automation, environmental monitoring, and control features to enhance agricultural productivity and sustainability",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "test": "jest",
+    "build": "webpack",
+    "dev": "concurrently \"nodemon index.js\" \"webpack --watch\"",
+    "lint": "eslint . --ext .ts,.js",
+    "format": "prettier --write .",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install",
+    "analyze": "webpack --profile --json > stats.json",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "start:prod": "NODE_ENV=production node dist/index.js",
+    "coverage": "jest --coverage",
+    "postinstall": "npm run build",
+    "docker:build": "docker build -t projekti-spektri .",
+    "docker:run": "docker run -p 5000:5000 projekti-spektri",
+    "e2e": "cypress run",
+    "storybook": "start-storybook -p 6006",
+    "test:integration": "jest --config jest.integration.config.js",
+    "format:check": "prettier --check .",
+    "analyze:bundle": "webpack-bundle-analyzer dist/stats.json",
+    "storybook:build": "build-storybook",
+    "ci": "npm run lint && npm run type-check && npm run test && npm run build",
+    "deploy": "npm run build && pm2 restart ecosystem.config.js",
+    "start:staging": "cross-env NODE_ENV=staging node dist/index.js",
+    "start:production": "cross-env NODE_ENV=production node dist/index.js",
+    "pm2:start": "pm2 start dist/index.js -i max --name spektri-backend",
+    "release": "standard-version",
+    "stylelint": "stylelint '**/*.{css,scss}'",
+    "format:css": "stylelint '**/*.{css,scss}' --fix",
+    "sync": "rsync -avz . user@remote:/path/to/Projekti-Spektri --exclude 'node_modules' --exclude 'dist'",
+    "audit:fix": "npm audit fix",
+    "lint:fix": "eslint . --fix",
+    "commit:lint": "commitlint --edit $1"
+  },
+  "keywords": [
+    "grow",
+    "system",
+    "management",
+    "automation",
+    "agriculture",
+    "smart-farming",
+    "environmental",
+    "sustainability",
+    "horticulture",
+    "greenhouse",
+    "plant-growth",
+    "indoor-farming"
+  ],
+  "author": "Lauri Rainio",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/client": "^3.7.1",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.9.0",
+    "@mui/material": "^5.8.0",
+    "apollo-server-express": "^3.11.1",
+    "axios": "^1.7.7",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.1",
+    "express-rate-limit": "^6.0.0",
+    "framer-motion": "^6.0.0",
+    "graphql": "^16.6.0",
+    "helmet": "^6.0.0",
+    "i18next": "^21.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "next": "^14.2.15",
+    "pm2": "^5.1.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "redis": "^4.0.0",
+    "socket.io": "^4.5.1",
+    "styled-components": "^5.3.3",
+    "winston": "^3.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@storybook/react": "^8.3.5",
+    "@typescript-eslint/eslint-plugin": "^5.36.0",
+    "@typescript-eslint/parser": "^5.36.0",
+    "babel-loader": "^8.2.5",
+    "commitlint": "^17.0.3",
+    "concurrently": "^7.3.0",
+    "cross-env": "^7.0.3",
+    "cypress": "^13.15.0",
+    "cypress-axe": "^1.5.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.1",
+    "globals": "^15.11.0",
+    "husky": "^8.0.1",
+    "jest": "^28.1.3",
+    "lint-staged": "^13.0.3",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.7.1",
+    "rimraf": "^3.0.2",
+    "standard-version": "^9.5.0",
+    "stylelint": "^14.9.1",
+    "stylelint-config-standard": "^24.0.0",
+    "supertest": "^6.2.3",
+    "ts-jest": "^28.0.5",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.8.4",
+    "typescript-eslint": "^8.9.0",
+    "webpack": "^5.64.0",
+    "webpack-bundle-analyzer": "^4.6.1",
+    "webpack-cli": "^4.9.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run type-check && npm run lint && npm run test && npm run build",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,json,md}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss}": [
+      "stylelint --fix"
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts",
+      "**/?(*.)+(spec|test).[tj]s"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ]
+  }
+}
