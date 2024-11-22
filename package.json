@@ -78,7 +78,7 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "redis": "^4.0.0",
-    "socket.io": "^4.5.1",
+    "socket.io": "^4.8.1",
     "styled-components": "^5.3.3",
     "winston": "^3.6.0"
   },
