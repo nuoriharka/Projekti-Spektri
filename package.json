@@ -56,7 +56,7 @@
   "author": "Lauri Rainio",
   "license": "ISC",
   "dependencies": {
-    "@apollo/client": "^3.7.1",
+    "@apollo/client": "^3.11.10",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
     "@mui/material": "^5.8.0",
